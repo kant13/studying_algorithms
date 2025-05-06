@@ -1,6 +1,7 @@
 ﻿#include "catch.hpp"
 #include "BinaryTree.h"
 
+#include <iostream>
 #include <string>
 
 
@@ -308,7 +309,29 @@ TEST_CASE("erase 9, 15, 9, 3, 1, 8, 4, 12, 23, 17", "BinaryTree") {
     BinaryTree bt;
     const std::vector<int> in{ 15, 9, 3, 1, 8, 4, 12, 23, 17 };
     bt.add(in);
-    REQUIRE(bt.isBalanced() == true);
+
+    std::cout << "pre order" << std::endl;
+    bt.printPreOrder();
+    std::cout << std::endl;
+
+    std::cout << "post order" << std::endl;
+    bt.printPostOrder();
+    std::cout << std::endl;
+
+    std::cout << "in order" << std::endl;
+    bt.printInOrder();
+    std::cout << std::endl;
+
+    std::cout << "level order BFS" << std::endl;
+    bt.printBFS();
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "DFS" << std::endl;
+    bt.printDFS();
+    std::cout << std::endl;
+
+    REQUIRE(bt.isBalanced() == false);
 
     REQUIRE(bt.empty() == false);
     REQUIRE(bt.size() == 9);

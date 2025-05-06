@@ -1,5 +1,8 @@
+﻿#include <algorithm>
 #include <cstddef>
 #include <vector>
+#include <queue>
+#include <iostream>
 
 
 // Definition for a binary tree node.
@@ -27,7 +30,22 @@ public:
     bool find(int val) const;
     void clear();
 
+    // Корінь-Ліво-Право
+    void printPreOrder() const;
+
+    // Ліво-Право-Корінь
+    void printPostOrder() const;
+    
+    // Ліво-Корінь-Право
+    void printInOrder() const;
+
+    // level-order рівень за рівнем
+    void printBFS() const;
+
+    void printDFS() const;
+
     std::vector<int> preOrder() const;
+
     bool isBalanced() const;
 
 private:
@@ -35,6 +53,13 @@ private:
     size_t count_;
 
 private:
+    void printPreOrder(TreeNode* node) const;
+    void printPostOrder(TreeNode* node) const;
+    void printInOrder(TreeNode* node) const;
+    void printBFS(TreeNode* node) const;
+
+    void printDFS(TreeNode* node, std::string path, std::vector<std::string>& paths) const;
+
     void preOrder(TreeNode* node, std::vector<int>& preOrderList) const;
     bool find(TreeNode* node, int val) const;
     void add(TreeNode*& node, int val);
@@ -48,19 +73,36 @@ inline BinaryTree::~BinaryTree() {
 }
 
 inline bool BinaryTree::isBalanced() const {
-    return isBalanced(root_) != -1;
+    bool ret = isBalanced(root_) != -1;
+    return ret;
 }
 
+/*
+* Pre-order 15, 9, 3, 1, 8, 4, 12, 23, 17
+        15
+       /  \
+      9    23
+     / \    /
+    3  12  17
+    / \
+    1  8
+     /
+    4
+*/
 inline int BinaryTree::isBalanced(TreeNode* node) const {
     if (!node) {
+        std::cout << std::endl;
         return 0;
     }
 
     int leftHeight = isBalanced(node->left);
-    int rightHeight = isBalanced(node->right);
+    if (leftHeight == -1) return -1;
 
-    if (leftHeight == -1 || rightHeight == -1 || std::abs(leftHeight - rightHeight) > 1) {
-        return -1; // Tree is unbalanced
+    int rightHeight = isBalanced(node->right);
+    if (rightHeight == -1) return -1;
+
+    if (std::abs(leftHeight - rightHeight) > 1) {
+        return -1;
     }
 
     return std::max(leftHeight, rightHeight) + 1;
@@ -183,6 +225,38 @@ inline bool BinaryTree::find(int val) const {
     return find(root_, val);
 }
 
+inline void BinaryTree::printPreOrder(TreeNode* node) const {
+    if (!node) {
+        return;
+    }
+    std::cout << node->val << " ";
+    printPreOrder(node->left);
+    printPreOrder(node->right);
+}
+
+inline void BinaryTree::printPreOrder() const {
+    printPreOrder(root_);
+    if (!this->empty()) {
+        std::cout << std::endl;
+    }
+}
+
+inline void BinaryTree::printPostOrder() const {
+    printPostOrder(root_);
+    if (!this->empty()) {
+        std::cout << std::endl;
+    }
+}
+
+inline void BinaryTree::printPostOrder(TreeNode* node) const {
+    if (!node) {
+        return;
+    }
+    printPostOrder(node->left);
+    printPostOrder(node->right);
+    std::cout << node->val << " ";
+}
+
 inline void BinaryTree::preOrder(TreeNode* node, std::vector<int>& preOrderList) const {
     if (!node) {
         return;
@@ -197,4 +271,85 @@ inline std::vector<int> BinaryTree::preOrder() const {
     ret.reserve(this->size());
     preOrder(root_, ret);
     return ret;
+}
+
+inline void BinaryTree::printInOrder() const {
+    printInOrder(root_);
+    if (!this->empty()) {
+        std::cout << std::endl;
+    }
+}
+
+inline void BinaryTree::printInOrder(TreeNode* node) const {
+    if (!node) {
+        return;
+    }
+    printInOrder(node->left);
+    std::cout << node->val << " ";
+    printInOrder(node->right);
+}
+
+inline void BinaryTree::printBFS() const {
+    printBFS(root_);
+}
+
+/*
+* Pre-order 15, 9, 3, 1, 8, 4, 12, 23, 17
+        15
+       /  \
+      9    23
+     / \    /
+     3 12  17
+    / \
+    1 8
+     /
+    4
+*/
+inline void BinaryTree::printBFS(TreeNode* node) const {
+    if (!node) {
+        return;
+    }
+    std::queue<TreeNode*> q;
+    q.push(root_);
+
+    while (!q.empty()) {
+        TreeNode* current = q.front();
+        q.pop();
+
+        std::cout << current->val << " ";
+
+        if (current->left) {
+            q.push(current->left);
+        }
+        if (current->right) {
+            q.push(current->right);
+        }
+    }
+}
+
+inline void BinaryTree::printDFS() const {
+    std::vector<std::string> paths;
+    if (root_) {
+        printDFS(root_, "", paths);
+    }
+
+    for (const auto& path : paths) {
+        std::cout << path << std::endl;
+    }
+}
+
+inline void BinaryTree::printDFS(TreeNode* node, std::string path, std::vector<std::string>& paths) const {
+    // Append the current node's value to the path
+    path += std::to_string(node->val);
+
+    // If it's a leaf node, add the path to the result
+    if (!node->left && !node->right) {
+        paths.push_back(path);
+    }
+    else {
+        // Otherwise, continue the path with "->" and recurse
+        path += "->";
+        if (node->left) printDFS(node->left, path, paths);
+        if (node->right) printDFS(node->right, path, paths);
+    }
 }
